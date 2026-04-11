@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  role      String   @default("RECEIVER") // DONOR or RECEIVER
+  lat       Float?   // Latitude
+  lng       Float?   // Longitude
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  donations       Donation[] @relation("DonatedBy")
+  claimedItems    Donation[] @relation("ClaimedBy")
+}
+
+model Donation {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  status      String   @default("AVAILABLE") // AVAILABLE, CLAIMED, OUT_FOR_PICKUP, COMPLETED
+  lat         Float
+  lng         Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  donorId     String
+  donor       User     @relation("DonatedBy", fields: [donorId], references: [clerkId])
+  
+  claimerId   String?
+  claimer     User?    @relation("ClaimedBy", fields: [claimerId], references: [clerkId])
+}
