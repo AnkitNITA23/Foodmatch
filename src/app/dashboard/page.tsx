@@ -1,25 +1,51 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function Dashboard() {
-  const user = await currentUser();
-  
-  if (!user) {
-    redirect("/sign-in");
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import OnboardingForm from "@/components/OnboardingForm";
+import DonorDashboard from "@/components/DonorDashboard";
+import ReceiverDashboard from "@/components/ReceiverDashboard";
+
+export default function Dashboard() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/users');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  let content;
+
+  if (loading) {
+    content = <div style={{ textAlign: 'center', margin: '4rem auto' }}><Loader2 className="animate-spin" /></div>;
+  } else if (!user || !user.lat || !user.lng) {
+    content = <OnboardingForm />;
+  } else if (user.role === 'DONOR') {
+    content = <DonorDashboard />;
+  } else {
+    content = <ReceiverDashboard />;
   }
 
-  // Basic layout for now
   return (
-    <div className="container" style={{ padding: '4rem 2rem' }}>
-      <h1 className="text-gradient">Welcome, {user.firstName || 'User'}!</h1>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
-        Manage your food donations and discover nearby food.
-      </p>
-      
-      <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
-        <h3>Your Dashboard is under construction.</h3>
-        <p>Soon you'll be able to track 5km radius real-time donations here!</p>
+    <div style={{ paddingTop: '100px', minHeight: '100vh', paddingBottom: '4rem' }} className="container animate-fade-in">
+      <div style={{ marginBottom: '2.5rem' }}>
+        <h1 style={{ fontSize: '2.5rem' }}>
+          {user?.role === 'DONOR' ? 'Partner Dashboard' : user?.role === 'RECEIVER' ? 'Community Dashboard' : 'Setup Profile'}
+        </h1>
+        {user?.name && <p style={{ color: 'var(--text-muted)' }}>Welcome back, {user.name}</p>}
       </div>
+      {content}
     </div>
   );
 }

@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -20,6 +20,7 @@ model User {
 
   donations       Donation[] @relation("DonatedBy")
   claimedItems    Donation[] @relation("ClaimedBy")
+  notifications   Notification[] @relation("UserNotifications")
 }
 
 model Donation {
@@ -27,14 +28,32 @@ model Donation {
   title       String
   description String
   status      String   @default("AVAILABLE") // AVAILABLE, CLAIMED, OUT_FOR_PICKUP, COMPLETED
+  pickupPin   String?  // Secure 4-digit PIN for verification
+  completedAt DateTime?
   lat         Float
   lng         Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  rating      Int?     // 1 to 5 star rating given by the receiver
+  feedback    String?  // Optional text comment from the receiver
   
   donorId     String
   donor       User     @relation("DonatedBy", fields: [donorId], references: [clerkId])
   
   claimerId   String?
   claimer     User?    @relation("ClaimedBy", fields: [claimerId], references: [clerkId])
+  
+  expiresAt   DateTime? // Optional expiry time after which donation is hidden
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  message     String
+  read        Boolean  @default(false)
+  type        String   @default("MATCH") // MATCH, SYSTEM
+  createdAt   DateTime @default(now())
+  
+  userId      String
+  user        User     @relation("UserNotifications", fields: [userId], references: [clerkId])
 }
