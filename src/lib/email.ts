@@ -101,7 +101,7 @@ export async function sendMatchEmail(
           <p style="margin:0 0 6px;font-size:18px;font-weight:700;color:#166534;">🍱 ${foodTitle}</p>
           <p style="margin:0;font-size:14px;color:#166534;">Posted by <strong>${donorName || 'a local donor'}</strong></p>
         </div>
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard"
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://foodmatch-six.vercel.app'}/dashboard"
            style="display:inline-block;background:linear-gradient(135deg,#40c057,#2f9e44);color:white;text-decoration:none;padding:14px 28px;border-radius:99px;font-weight:700;font-size:15px;">
           👉 Claim This Donation
         </a>
