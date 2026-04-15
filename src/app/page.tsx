@@ -3,7 +3,7 @@
 import styles from "./page.module.css";
 import Link from "next/link";
 import { MapPin, Zap, ArrowRight, HeartHandshake, Navigation, Route, ShieldCheck, Star, Pizza, Leaf } from "lucide-react";
-import { motion, useScroll, useTransform, Variants, useAnimationControls } from "framer-motion";
+import { motion, useScroll, useTransform, Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 // Module-level flag: persists in JS memory across SPA navigations
@@ -11,7 +11,6 @@ let heroHasAnimated = false;
 
 export default function Home() {
   const containerRef = useRef(null);
-  const heroControls = useAnimationControls();
   
   // Force browser to physically snap to top on refresh
   const [stats, setStats] = useState({ successfulPickups: 0, lbsFoodSaved: 0, co2Offset: 0 });
@@ -26,13 +25,10 @@ export default function Home() {
       if (data.successfulPickups !== undefined) setStats(data);
     }).catch(console.error);
 
-    // After hydration: animate in (first visit) or snap to visible (return visit)
+    // Track first visit flag
     const isFirstVisit = !heroHasAnimated;
     if (isFirstVisit) {
        heroHasAnimated = true;
-       heroControls.start("show");
-    } else {
-       heroControls.set("show");
     }
 
     // If there's a hash (e.g. /#features), wait for animations to settle THEN scroll
@@ -78,7 +74,7 @@ export default function Home() {
           className={styles.heroContent}
           variants={staggerContainer}
           initial={heroHasAnimated ? "show" : "hidden"}
-          animate={heroControls}
+          animate="show"
         >
           <motion.div variants={itemFadeUp} className={styles.badge}>
             <span className={styles.pulseDot}></span>
