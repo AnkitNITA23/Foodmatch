@@ -28,11 +28,11 @@ export default function Home() {
 
     // After hydration: animate in (first visit) or snap to visible (return visit)
     const isFirstVisit = !heroHasAnimated;
-    if (heroHasAnimated) {
-      heroControls.set("show");
+    if (isFirstVisit) {
+       heroHasAnimated = true;
+       heroControls.start("show");
     } else {
-      heroHasAnimated = true;
-      heroControls.start("show");
+       heroControls.set("show");
     }
 
     // If there's a hash (e.g. /#features), wait for animations to settle THEN scroll
@@ -77,7 +77,7 @@ export default function Home() {
         <motion.div 
           className={styles.heroContent}
           variants={staggerContainer}
-          initial="hidden"
+          initial={heroHasAnimated ? "show" : "hidden"}
           animate={heroControls}
         >
           <motion.div variants={itemFadeUp} className={styles.badge}>
