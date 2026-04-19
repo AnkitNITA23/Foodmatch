@@ -56,9 +56,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(dbUser);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in /api/users:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error', details: error?.message || String(error), stack: error?.stack }, { status: 500 });
   }
 }
 
