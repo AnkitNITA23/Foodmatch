@@ -12,8 +12,8 @@ export async function POST(req: Request) {
     const { role, lat, lng } = await req.json();
 
     const user = await currentUser();
-    const email = user?.emailAddresses[0]?.emailAddress || '';
-    const name = user?.firstName ? `${user.firstName} ${user.lastName}` : 'Anonymous';
+    const email = user?.emailAddresses?.[0]?.emailAddress || '';
+    const name = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Anonymous';
 
     let dbUser = await prisma.user.findUnique({
       where: { clerkId: userId }

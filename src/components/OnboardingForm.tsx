@@ -52,7 +52,12 @@ export default function OnboardingForm() {
       } else {
         const text = await res.text();
         console.error('Save failed:', text);
-        setError("Failed to save profile. Try again.");
+        try {
+          const parsed = JSON.parse(text);
+          setError(`Failed: ${parsed.details || parsed.error || 'Unknown error'}`);
+        } catch {
+          setError(`Failed to save profile: ${text.substring(0, 100)}`);
+        }
       }
     } catch (e) {
       console.error('Network error:', e);
