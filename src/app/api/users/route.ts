@@ -15,22 +15,45 @@ export async function POST(req: Request) {
     const email = user?.emailAddresses[0]?.emailAddress || '';
     const name = user?.firstName ? `${user.firstName} ${user.lastName}` : 'Anonymous';
 
-    const dbUser = await prisma.user.upsert({
-      where: { clerkId: userId },
-      update: {
-        role,
-        lat: lat ? parseFloat(lat) : null,
-        lng: lng ? parseFloat(lng) : null,
-      },
-      create: {
-        clerkId: userId,
-        email,
-        name,
-        role,
-        lat: lat ? parseFloat(lat) : null,
-        lng: lng ? parseFloat(lng) : null,
-      },
+    let dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId }
     });
+
+    if (dbUser) {
+      dbUser = await prisma.user.update({
+        where: { clerkId: userId },
+        data: {
+          role,
+          lat: lat != null ? Number(lat) : null,
+          lng: lng != null ? Number(lng) : null,
+        },
+      });
+    } else {
+      const existingByEmail = email ? await prisma.user.findUnique({ where: { email } }) : null;
+      if (existingByEmail) {
+        dbUser = await prisma.user.update({
+          where: { email },
+          data: {
+            clerkId: userId,
+            role,
+            lat: lat != null ? Number(lat) : null,
+            lng: lng != null ? Number(lng) : null,
+            name,
+          },
+        });
+      } else {
+        dbUser = await prisma.user.create({
+          data: {
+            clerkId: userId,
+            email: email || userId,
+            name,
+            role,
+            lat: lat != null ? Number(lat) : null,
+            lng: lng != null ? Number(lng) : null,
+          },
+        });
+      }
+    }
 
     return NextResponse.json(dbUser);
   } catch (error) {

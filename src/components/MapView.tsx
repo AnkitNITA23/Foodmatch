@@ -41,7 +41,7 @@ export default function MapView({ donations, userLocation }: Props) {
     <MapContainer
       center={[userLocation.lat, userLocation.lng]}
       zoom={13}
-      style={{ height: "100%", width: "100%", zIndex: 0 }}
+      style={{ height: "100%", minHeight: "500px", width: "100%", zIndex: 0 }}
       zoomControl={false}
     >
       <TileLayer
